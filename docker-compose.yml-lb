@@ -1,0 +1,40 @@
+version: '2'
+services:
+  www:
+    build: www
+    ports:
+      - 5000
+    links:
+      - redis
+    user: nobody
+    environment:
+      DEBUG: 1
+    command: python counter.py
+    volumes:
+      - ./www:/src
+
+  www2:
+    build: www
+    ports:
+      - 5000
+    links:
+      - redis
+    user: nobody
+    environment:
+      DEBUG: 1
+    command: python counter.py
+    volumes:
+      - ./www:/src
+
+  redis:
+    image: redis
+
+  lb:
+    image: dockercloud/haproxy
+    links:
+      - www
+      - www2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 80:80
